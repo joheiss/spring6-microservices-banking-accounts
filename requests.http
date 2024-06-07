@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:8080
+@accountsUrl = {{baseUrl}}/api/v1/accounts
+
+# GET health
+GET {{baseUrl}}/actuator/health
+
+###
+
+# GET list of accounts
+GET {{accountsUrl}}
+
+###
+
+# GET customer & account data by mobile number
+GET {{accountsUrl}}/+49171123456789
+# POST create a customer and an account
+
+###
+POST {{accountsUrl}}
+Content-Type: application/json
+
+{
+    "name": "Hansi Hackl",
+    "email": "hansi@hackl.de",
+    "mobileNumber": "+49171123456789"
+}
