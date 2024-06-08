@@ -24,3 +24,87 @@ Content-Type: application/json
     "email": "hansi@hackl.de",
     "mobileNumber": "+49171123456789"
 }
+
+###
+PUT {{accountsUrl}}
+Content-Type: application/json
+
+{
+  "customer": {
+    "name": "Hansi Hacklhuber",
+    "email": "hansi@hackl.de",
+    "mobileNumber": "+49171123456789"
+  },
+  "account": {
+    "id": 1350172270,
+    "type": "Savings",
+    "branchAddress": "Hintere Schmutzgasse 1, Bauernhäusl"
+  }
+}
+
+###
+
+# Delete an account by mobile number
+DELETE {{accountsUrl}}/+49171123456789
+
+###
+
+###
+POST {{accountsUrl}}
+Content-Type: application/json
+
+{
+    "name": "Email und Mobile falsch",
+    "email": "hansi@hackl.de",
+    "mobileNumber": "+491711923456789"
+}
+###
+
+POST {{accountsUrl}}
+Content-Type: application/json
+
+{
+}
+###
+PUT {{accountsUrl}}
+Content-Type: application/json
+
+{
+  "customer": {
+    "name": "Hansi Hackl",
+    "email": "hansi@hackl.de",
+    "mobileNumber": "+49171123456789"
+  },
+  "account": {
+    "id": 1697082356,
+    "type": "Savings",
+    "branchAddress": "321 Sub Street, Hungtington Beach"
+  }
+}
+###
+PUT {{accountsUrl}}
+Content-Type: application/json
+
+{
+  "customer": {
+    "name": "Hansi Hackl",
+    "email": "hansi@hackl.de",
+    "mobileNumber": "+49171123456789"
+  },
+  "account": {
+    "type": "Savings",
+    "branchAddress": "321 Sub Street, Hungtington Beach"
+  }
+}
+###
+
+PUT {{accountsUrl}}
+Content-Type: application/json
+
+{
+  "customer": {
+  },
+  "account": {
+  }
+}
+###
