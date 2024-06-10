@@ -27,3 +27,6 @@ docker stop f804a93108b1
 
 ### build image using buildbacks
 mvn spring-boot:build-image
+
+### push docker image to docker hub
+docker image push docker.io/joheiss/sb3-accounts:v1
