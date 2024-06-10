@@ -24,3 +24,6 @@ docker start f804a93108b1
 
 ### stop running container <container-id>
 docker stop f804a93108b1
+
+### build image using buildbacks
+mvn spring-boot:build-image
