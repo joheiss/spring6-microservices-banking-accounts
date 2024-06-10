@@ -22,14 +22,14 @@ import lombok.ToString;
 @Table(name = "customers")
 public class Customer extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String email;
+  private String email;
 
-    private String mobileNumber;
+  private String mobileNumber;
 
 }

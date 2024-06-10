@@ -1,6 +1,8 @@
 package com.jovisco.services.accounts.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,12 +22,13 @@ import lombok.ToString;
 @Table(name = "accounts")
 public class Account extends BaseEntity {
 
-    @Id
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long customerId;
+  private Long customerId;
 
-    private String type;
+  private String type;
 
-    private String branchAddress;
+  private String branchAddress;
 }

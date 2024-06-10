@@ -43,7 +43,7 @@ import lombok.RequiredArgsConstructor;
 public class AccountsController {
 
   public static final String ACCOUNTS_PATH = "/accounts";
-  public static final String ACCOUNTS_ID_PATH = ACCOUNTS_PATH + "/{id}";
+  public static final String ACCOUNTS_MOBILENUMBER_PATH = ACCOUNTS_PATH + "/{mobileNumber}";
 
   private final AccountsService accountsService;
 
@@ -68,7 +68,7 @@ public class AccountsController {
           @ExampleObject(value = "{\"apiPath\": \"uri=/api/v1/accounts\", \"errorCode\": \"500\", \"errorMessage\": \"An error occurred ...\", \"errorTime\": \"2024-07-04T11:12:13\"}") }, mediaType = MediaType.APPLICATION_JSON_VALUE))
   })
 
-  @GetMapping(ACCOUNTS_PATH + "/{mobileNumber}")
+  @GetMapping(ACCOUNTS_MOBILENUMBER_PATH)
   public ResponseEntity<CustomerWithAccountDto> fetchAccount(@PathVariable String mobileNumber) {
 
     var found = accountsService.fetchAccount(mobileNumber);
