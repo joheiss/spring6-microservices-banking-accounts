@@ -33,288 +33,303 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 public class AccountsControllerIT {
 
-    @Autowired
-    AccountsController accountsController;
+  @Autowired
+  AccountsController accountsController;
 
-    @Autowired
-    CustomersRepository customersRepository;
+  @Autowired
+  CustomersRepository customersRepository;
 
-    @Autowired
-    AccountsRepository accountsRepository;
+  @Autowired
+  AccountsRepository accountsRepository;
 
-    @Autowired
-    WebApplicationContext wac;
+  @Autowired
+  WebApplicationContext wac;
 
-    @Autowired
-    ObjectMapper objectMapper;
+  @Autowired
+  ObjectMapper objectMapper;
 
-    MockMvc mockMvc;
+  MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+  }
+
+  @Transactional
+  @Rollback
+  @Test
+  void testCreateAccountMvc() throws Exception {
+
+    var customerDto = buildCustomerDto();
+
+    mockMvc.perform(
+        post("/api/v1/accounts")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(customerDto)))
+        .andExpect(status().isCreated())
+        .andReturn();
+  }
+
+  @Transactional
+  @Rollback
+  @Test
+  void testCreateAccount() {
+
+    var customerDto = buildCustomerDto();
+
+    var response = accountsController.createAccount(customerDto);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    var location = response.getHeaders().getLocation();
+    System.out.println("Location: " + location);
+    System.out.flush();
+    assertThat(location).isNotNull();
+
+    // get id from location & verify that the customer and account is really present
+    // on the database
+    if (location != null) {
+      var segments = location.getPath().split("/");
+      var mobileNumber = segments[segments.length - 1];
+      assertThat(mobileNumber).isNotNull();
+      var customer = customersRepository.findByMobileNumber(mobileNumber);
+      assertTrue(customer.isPresent());
+      assertTrue(accountsRepository.findByCustomerId(customer.get().getId()).isPresent());
     }
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testCreateAccountMvc() throws Exception {
+  @Transactional
+  @Rollback
+  @Test
+  void testCreateAccountWithAlreadyExistsError() {
 
-        var customerDto = buildCustomerDto();
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
 
-        mockMvc.perform(
-                post("/api/v1/accounts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerDto)))
-                .andExpect(status().isCreated())
-                .andReturn();
-    }
+    assertThatExceptionOfType(CustomerAlreadyExistsException.class)
+        .isThrownBy(() -> accountsController.createAccount(customerDto));
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testCreateAccount() {
+  @Test
+  void testCreateAccountWithNameValidationError() {
 
-        var customerDto = buildCustomerDto();
+    var customerDto = buildCustomerDto();
+    customerDto.setName("");
 
-        var response = accountsController.createAccount(customerDto);
+    assertThatExceptionOfType(ConstraintViolationException.class)
+        .isThrownBy(() -> accountsController.createAccount(customerDto))
+        .withMessageContaining("name");
+  }
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        var location = response.getHeaders().getLocation();
-        System.out.println("Location: " + location);
-        System.out.flush();
-        assertThat(location).isNotNull();
+  @Test
+  void testCreateAccountWithEmailValidationError() {
 
-        // get id from location & verify that the customer and account is really present
-        // on the database
-        if (location != null) {
-            var segments = location.getPath().split("/");
-            var mobileNumber = segments[segments.length - 1];
-            assertThat(mobileNumber).isNotNull();
-            var customer = customersRepository.findByMobileNumber(mobileNumber);
-            assertTrue(customer.isPresent());
-            assertTrue(accountsRepository.findByCustomerId(customer.get().getId()).isPresent());
-        }
-    }
+    var customerDto = buildCustomerDto();
+    customerDto.setEmail("INVALID EMAIL");
 
-    @Transactional
-    @Rollback
-    @Test
-    void testCreateAccountWithAlreadyExistsError() {
+    assertThatExceptionOfType(ConstraintViolationException.class)
+        .isThrownBy(() -> accountsController.createAccount(customerDto))
+        .withMessageContaining("email");
+  }
 
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
+  @Test
+  void testCreateAccountWithMobileNumberValidationError() {
 
-        assertThatExceptionOfType(CustomerAlreadyExistsException.class)
-                .isThrownBy(() -> accountsController.createAccount(customerDto));
-    }
+    var customerDto = buildCustomerDto();
+    customerDto.setMobileNumber("+499879876543XY");
 
-    @Test
-    void testCreateAccountWithNameValidationError() {
+    assertThatExceptionOfType(ConstraintViolationException.class)
+        .isThrownBy(() -> accountsController.createAccount(customerDto))
+        .withMessageContaining("mobile");
+  }
 
-        var customerDto = buildCustomerDto();
-        customerDto.setName("");
+  @Transactional
+  @Rollback
+  @Test
+  void testDeleteAccountMvc() throws Exception {
 
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> accountsController.createAccount(customerDto))
-                .withMessageContaining("name");
-    }
+    // first create a test account
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
 
-    @Test
-    void testCreateAccountWithEmailValidationError() {
+    mockMvc.perform(
+        delete("/api/v1/accounts/{mobileNumber}", customerDto.getMobileNumber()))
+        .andExpect(status().isOk())
+        .andReturn();
+  }
 
-        var customerDto = buildCustomerDto();
-        customerDto.setEmail("INVALID EMAIL");
+  @Transactional
+  @Rollback
+  @Test
+  void testDeleteAccount() {
 
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> accountsController.createAccount(customerDto))
-                .withMessageContaining("email");
-    }
+    // first create a test account
+    var customerDto = buildCustomerDto();
+    var response = accountsController.createAccount(customerDto);
 
-    @Test
-    void testCreateAccountWithMobileNumberValidationError() {
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    var location = response.getHeaders().getLocation();
 
-        var customerDto = buildCustomerDto();
-        customerDto.setMobileNumber("+499879876543XY");
+    // get id from location and delete account
+    var segments = location.getPath().split("/");
+    var mobileNumber = segments[segments.length - 1];
 
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> accountsController.createAccount(customerDto))
-                .withMessageContaining("mobile");
-    }
+    response = accountsController.deleteAccount(mobileNumber);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    @Transactional
-    @Rollback
-    @Test
-    void testDeleteAccountMvc() throws Exception {
+    // verify that customer and account have been deleted from database
+    assertFalse(customersRepository.findByMobileNumber(mobileNumber).isPresent());
+  }
 
-        // first create a test account
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
+  @Transactional
+  @Rollback
+  @Test
+  void testFetchAccountMvc() throws Exception {
 
-        mockMvc.perform(
-                delete("/api/v1/accounts/{mobileNumber}", customerDto.getMobileNumber()))
-                .andExpect(status().isOk())
-                .andReturn();
-    }
+    // first create a test account
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
 
-    @Transactional
-    @Rollback
-    @Test
-    void testDeleteAccount() {
+    mockMvc.perform(
+        get("/api/v1/accounts/{mobileNumber}", customerDto.getMobileNumber()))
+        .andExpect(status().isOk())
+        .andReturn();
+  }
 
-        // first create a test account
-        var customerDto = buildCustomerDto();
-        var response = accountsController.createAccount(customerDto);
+  @Transactional
+  @Rollback
+  @Test
+  void testFetchAccount() {
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        var location = response.getHeaders().getLocation();
+    // first create a test account
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
 
-        // get id from location and delete account
-        var segments = location.getPath().split("/");
-        var mobileNumber = segments[segments.length - 1];
+    // check that account can be fetched
+    var response = accountsController.fetchAccount(customerDto.getMobileNumber());
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody().getCustomer().getMobileNumber()).isEqualTo(customerDto.getMobileNumber());
+  }
 
-        response = accountsController.deleteAccount(mobileNumber);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  @Test
+  void testFetchAccountWithNotFound() {
 
-        // verify that customer and account have been deleted from database
-        assertFalse(customersRepository.findByMobileNumber(mobileNumber).isPresent());
-    }
+    // check that an exception is thrown
+    assertThatExceptionOfType(ResourceNotFoundException.class)
+        .isThrownBy(() -> accountsController.fetchAccount("+999999999999"));
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testFetchAccountMvc() throws Exception {
+  @Transactional
+  @Rollback
+  @Test
+  void testUpdateAccountMvc() throws Exception {
 
-        // first create a test account
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
+    // first create a test account
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
+    // ... fetch it, and update fields
+    var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
+    customerWithAccountDto.getCustomer().setName("*** UPDATED ***");
 
-        mockMvc.perform(
-                get("/api/v1/accounts/{mobileNumber}", customerDto.getMobileNumber()))
-                .andExpect(status().isOk())
-                .andReturn();
-    }
+    mockMvc.perform(
+        put("/api/v1/accounts")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(customerWithAccountDto)))
+        .andExpect(status().isOk())
+        .andReturn();
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testFetchAccount() {
+  @Transactional
+  @Rollback
+  @Test
+  void testUpdateAccount() {
 
-        // first create a test account
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
+    // first create a test account and fetch it
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
+    var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
 
-        // check that account can be fetched
-        var response = accountsController.fetchAccount(customerDto.getMobileNumber());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getCustomer().getMobileNumber()).isEqualTo(customerDto.getMobileNumber());
-    }
+    // check that account can be updated
+    final String updatedName = "*** UPDATED ***";
+    final String updatedBranchAddress = "*** UPDATED BRANCH ADDRESS ***";
+    customerWithAccountDto.getCustomer().setName(updatedName);
+    customerWithAccountDto.getAccount().setBranchAddress(updatedBranchAddress);
+    var response = accountsController.updateAccount(customerWithAccountDto);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-    @Test
-    void testFetchAccountWithNotFound() {
+    // check that fields have been updated with the correct values
+    var updated = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
+    assertThat(updated.getCustomer().getName()).isEqualTo(updatedName);
+    assertThat(updated.getAccount().getBranchAddress()).isEqualTo(updatedBranchAddress);
+  }
 
-        // check that an exception is thrown
-        assertThatExceptionOfType(ResourceNotFoundException.class)
-                .isThrownBy(() -> accountsController.fetchAccount("+999999999999"));
-    }
+  @Transactional
+  @Rollback
+  @Test
+  void testUpdateAccountWithValidationErrors() {
 
-    @Transactional
-    @Rollback
-    @Test
-    void testUpdateAccountMvc() throws Exception {
+    // first create a test account and fetch it
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
+    var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
 
-        // first create a test account
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
-        // ... fetch it, and update fields
-        var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
-        customerWithAccountDto.getCustomer().setName("*** UPDATED ***");
+    // check that account cannot be updated with invalid values
+    customerWithAccountDto.getCustomer().setName("U");
+    customerWithAccountDto.getCustomer().setMobileNumber("abc");
+    customerWithAccountDto.getCustomer().setEmail("INVALID EMAIL");
+    customerWithAccountDto.getAccount().setType("");
+    customerWithAccountDto.getAccount().setBranchAddress("");
 
-        mockMvc.perform(
-                put("/api/v1/accounts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(customerWithAccountDto)))
-                .andExpect(status().isOk())
-                .andReturn();
-    }
+    assertThatExceptionOfType(ConstraintViolationException.class)
+        .isThrownBy(() -> accountsController.updateAccount(customerWithAccountDto))
+        .withMessageContainingAll("name", "mobile", "email", "type", "address");
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testUpdateAccount() {
+  @Transactional
+  @Rollback
+  @Test
+  void testUpdateAccountWithMoreValidationErrors() {
 
-        // first create a test account and fetch it
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
-        var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
+    // first create a test account and fetch it
+    var customerDto = buildCustomerDto();
+    accountsController.createAccount(customerDto);
+    var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
 
-        // check that account can be updated
-        final String updatedName = "*** UPDATED ***";
-        final String updatedBranchAddress = "*** UPDATED BRANCH ADDRESS ***";
-        customerWithAccountDto.getCustomer().setName(updatedName);
-        customerWithAccountDto.getAccount().setBranchAddress(updatedBranchAddress);
-        var response = accountsController.updateAccount(customerWithAccountDto);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    // check that account cannot be updated with invalid values
+    customerWithAccountDto.getCustomer().setName(null);
+    customerWithAccountDto.getCustomer().setMobileNumber(null);
+    customerWithAccountDto.getCustomer().setEmail(null);
+    customerWithAccountDto.getAccount().setType(null);
+    customerWithAccountDto.getAccount().setBranchAddress(null);
+    customerWithAccountDto.getAccount().setId(null);
 
-        // check that fields have been updated with the correct values
-        var updated = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
-        assertThat(updated.getCustomer().getName()).isEqualTo(updatedName);
-        assertThat(updated.getAccount().getBranchAddress()).isEqualTo(updatedBranchAddress);
-    }
+    assertThatExceptionOfType(ConstraintViolationException.class)
+        .isThrownBy(() -> accountsController.updateAccount(customerWithAccountDto))
+        .withMessageContainingAll("name", "mobile", "email", "type", "address", "id");
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testUpdateAccountWithValidationErrors() {
+  private CustomerDto buildCustomerDto() {
+    return CustomerDto.builder()
+        .name("Test Customer")
+        .email("test.customer@test.com")
+        .mobileNumber("+1122233333333")
+        .build();
+  }
 
-        // first create a test account and fetch it
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
-        var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
+  @Test
+  void testGetBuildVersion() {
+    var response = accountsController.getBuildVersion();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isNotEmpty();
 
-        // check that account cannot be updated with invalid values
-        customerWithAccountDto.getCustomer().setName("U");
-        customerWithAccountDto.getCustomer().setMobileNumber("abc");
-        customerWithAccountDto.getCustomer().setEmail("INVALID EMAIL");
-        customerWithAccountDto.getAccount().setType("");
-        customerWithAccountDto.getAccount().setBranchAddress("");
+  }
 
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> accountsController.updateAccount(customerWithAccountDto))
-                .withMessageContainingAll("name", "mobile", "email", "type", "address");
-    }
-
-    @Transactional
-    @Rollback
-    @Test
-    void testUpdateAccountWithMoreValidationErrors() {
-
-        // first create a test account and fetch it
-        var customerDto = buildCustomerDto();
-        accountsController.createAccount(customerDto);
-        var customerWithAccountDto = accountsController.fetchAccount(customerDto.getMobileNumber()).getBody();
-
-        // check that account cannot be updated with invalid values
-        customerWithAccountDto.getCustomer().setName(null);
-        customerWithAccountDto.getCustomer().setMobileNumber(null);
-        customerWithAccountDto.getCustomer().setEmail(null);
-        customerWithAccountDto.getAccount().setType(null);
-        customerWithAccountDto.getAccount().setBranchAddress(null);
-        customerWithAccountDto.getAccount().setId(null);
-
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> accountsController.updateAccount(customerWithAccountDto))
-                .withMessageContainingAll("name", "mobile", "email", "type", "address", "id");
-    }
-
-    private CustomerDto buildCustomerDto() {
-        return CustomerDto.builder()
-                .name("Test Customer")
-                .email("test.customer@test.com")
-                .mobileNumber("+1122233333333")
-                .build();
-    }
+  @Test
+  void testGetContactInfo() {
+    var response = accountsController.getContactInfo();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody().message()).isNotEmpty();
+  }
 
 }

@@ -1,7 +1,7 @@
 package com.jovisco.services.accounts.controllers;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jovisco.services.accounts.constants.AccountsConstants;
-import com.jovisco.services.accounts.dtos.AccountDto;
+import com.jovisco.services.accounts.dtos.AccountsContactInfoDto;
 import com.jovisco.services.accounts.dtos.CustomerDto;
 import com.jovisco.services.accounts.dtos.CustomerWithAccountDto;
 import com.jovisco.services.accounts.dtos.ErrorResponseDto;
@@ -44,18 +44,16 @@ public class AccountsController {
 
   public static final String ACCOUNTS_PATH = "/accounts";
   public static final String ACCOUNTS_MOBILENUMBER_PATH = ACCOUNTS_PATH + "/{mobileNumber}";
+  public static final String ACCOUNTS_VERSION_PATH = ACCOUNTS_PATH + "/version";
 
   private final AccountsService accountsService;
 
-  @GetMapping(ACCOUNTS_PATH)
-  public List<AccountDto> listAccounts() {
-    return List.of(
-        AccountDto.builder().id(1L).type("Savings Account").branchAddress("New York City, NY")
-            .build(),
-        AccountDto.builder().id(2L).type("Loans Account").branchAddress("Las Vegas, NV")
-            .build(),
-        AccountDto.builder().id(3L).type("Current Account").branchAddress("Miami, FL").build());
-  }
+  private final AccountsContactInfoDto accountsContactInfoDto;
+
+  private final Environment environment;
+
+  @Value("${build.version}")
+  private String buildVersion;
 
   @Operation(summary = "Fetch a single account by the customer's mobile number", description = "Fetch data from customer and account for a given mobile number")
 
@@ -167,6 +165,66 @@ public class AccountsController {
               .statusMessage(AccountsConstants.MESSAGE_500)
               .build());
     }
+  }
+
+  @Operation(summary = "Get build information", description = "Get the current build version that is deployed for this service")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "HTTP Status OK", content = @Content(examples = {
+          @ExampleObject(value = "1.0.0") }, mediaType = MediaType.TEXT_PLAIN_VALUE)),
+      @ApiResponse(responseCode = "500", description = "HTTP Status INTERNAL_SERVER_ERROR", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class), examples = {
+          @ExampleObject(value = "{\"apiPath\": \"uri=/api/v1/accounts/version\", \"errorCode\": \"500\", \"errorMessage\": \"An error occurred ...\", \"errorTime\": \"2024-07-04T11:12:13\"}") }, mediaType = MediaType.APPLICATION_JSON_VALUE))
+  })
+
+  @GetMapping(path = ACCOUNTS_VERSION_PATH, produces = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> getBuildVersion() {
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(buildVersion);
+  }
+
+  @Operation(summary = "Get Java version", description = "Get the current Java version that is deployed for this service")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "HTTP Status OK", content = @Content(examples = {
+          @ExampleObject(value = "1.0.0") }, mediaType = MediaType.TEXT_PLAIN_VALUE)),
+      @ApiResponse(responseCode = "500", description = "HTTP Status INTERNAL_SERVER_ERROR", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class), examples = {
+          @ExampleObject(value = "{\"apiPath\": \"uri=/api/v1/accounts/java-version\", \"errorCode\": \"500\", \"errorMessage\": \"An error occurred ...\", \"errorTime\": \"2024-07-04T11:12:13\"}") }, mediaType = MediaType.APPLICATION_JSON_VALUE))
+  })
+
+  @GetMapping(path = ACCOUNTS_PATH + "/java-version", produces = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> getJavaVersion() {
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(environment.getProperty("JAVA_HOME"));
+  }
+
+  @Operation(summary = "Get environment variable", description = "Get the current value of an environment variable that is deployed for this service")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "HTTP Status OK", content = @Content(examples = {
+          @ExampleObject(value = "anything") }, mediaType = MediaType.TEXT_PLAIN_VALUE)),
+      @ApiResponse(responseCode = "500", description = "HTTP Status INTERNAL_SERVER_ERROR", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class), examples = {
+          @ExampleObject(value = "{\"apiPath\": \"uri=/api/v1/accounts/java-version\", \"errorCode\": \"500\", \"errorMessage\": \"An error occurred ...\", \"errorTime\": \"2024-07-04T11:12:13\"}") }, mediaType = MediaType.APPLICATION_JSON_VALUE))
+  })
+
+  @GetMapping(path = ACCOUNTS_PATH + "/env-variable/{envVariable}", produces = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<String> getEnvVariable(@PathVariable String envVariable) {
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(environment.getProperty(envVariable));
+  }
+
+  @Operation(summary = "Get contact information", description = "Get contact information for this service")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "HTTP Status OK", content = @Content(schema = @Schema(implementation = AccountsContactInfoDto.class), examples = {
+          @ExampleObject(value = "{\"message\": \"Welcome to ...\", \"contact\": {\"name\": \"Jane Doe\", \"email\": \"jane@example.com\"}, \"support\": [\"+1 222 333 4444\", \"+1 555 666 7777\"]}") }, mediaType = MediaType.APPLICATION_JSON_VALUE)),
+      @ApiResponse(responseCode = "500", description = "HTTP Status INTERNAL_SERVER_ERROR", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class), examples = {
+          @ExampleObject(value = "{\"apiPath\": \"uri=/api/v1/accounts/contact-info\", \"errorCode\": \"500\", \"errorMessage\": \"An error occurred ...\", \"errorTime\": \"2024-07-04T11:12:13\"}") }, mediaType = MediaType.APPLICATION_JSON_VALUE))
+  })
+
+  @GetMapping(path = ACCOUNTS_PATH + "/contact-info", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(accountsContactInfoDto);
   }
 
 }

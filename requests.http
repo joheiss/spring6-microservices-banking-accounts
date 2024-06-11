@@ -6,8 +6,23 @@ GET {{baseUrl}}/actuator/health
 
 ###
 
-# GET list of accounts
-GET {{accountsUrl}}
+# GET build version
+GET {{accountsUrl}}/version
+
+###
+
+# GET java version
+GET {{accountsUrl}}/java-version
+
+###
+
+# GET env variable
+GET {{accountsUrl}}/env-variable/DB_USER
+
+###
+
+# GET contact information
+GET {{accountsUrl}}/contact-info
 
 ###
 
