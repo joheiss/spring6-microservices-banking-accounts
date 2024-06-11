@@ -10,7 +10,7 @@ docker inspect image 4236f8a634fd
 ### run docker container - detached mode
 docker run -d -p 8091:8091 joheiss/sb3-accounts:v1
 
-# run the same image on a differend local port
+# run the same image on a different local port
 docker run -d -p 8096:8091 joheiss/sb3-accounts:v1
 
 ### show running containers
@@ -30,3 +30,9 @@ mvn spring-boot:build-image
 
 ### push docker image to docker hub
 docker image push docker.io/joheiss/sb3-accounts:v1
+
+### start all microservices via docker compose
+docker compose up -d
+
+### stop all containers
+docker compose down
