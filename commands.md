@@ -25,6 +25,21 @@ docker start f804a93108b1
 ### stop running container <container-id>
 docker stop f804a93108b1
 
+### delete a docker container
+docker rm <container-id>
+
+### delete all stopped containers
+docker container prune
+
+### delete all (unused) images
+docker image prune
+
+### delete all unused docker stuff
+docker system prune
+
+### open a command shell in docker container
+docker exec -t <container-id> sh
+
 ### build image using buildbacks
 mvn spring-boot:build-image
 
@@ -34,5 +49,12 @@ docker image push docker.io/joheiss/sb3-accounts:v1
 ### start all microservices via docker compose
 docker compose up -d
 
-### stop all containers
+### stop all containers - and delete them
 docker compose down
+
+### stop containers - without deleting them
+docker compose stop
+
+### start existing containers
+docker compose start
+
