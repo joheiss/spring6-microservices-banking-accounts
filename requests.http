@@ -6,6 +6,16 @@ GET {{baseUrl}}/actuator/health
 
 ###
 
+# Refresh config using cloud bus via actuator
+POST {{baseUrl}}/actuator/busrefresh
+
+###
+
+# Refresh config using actuator
+POST {{baseUrl}}/actuator/refresh
+
+###
+
 # GET build version
 GET {{accountsUrl}}/version
 

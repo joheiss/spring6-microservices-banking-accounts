@@ -329,7 +329,7 @@ public class AccountsControllerIT {
   void testGetContactInfo() {
     var response = accountsController.getContactInfo();
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    assertThat(response.getBody().message()).isNotEmpty();
+    assertThat(response.getBody().getMessage()).isNotEmpty();
   }
 
 }
