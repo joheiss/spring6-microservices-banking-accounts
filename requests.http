@@ -27,7 +27,7 @@ GET {{accountsUrl}}/java-version
 ###
 
 # GET env variable
-GET {{accountsUrl}}/env-variable/DB_USER
+GET {{accountsUrl}}/env-variable/SPRING_PROFILES_ACTIVE
 
 ###
 
