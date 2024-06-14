@@ -18,68 +18,68 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 public class AccountsRepositoryTest {
 
-    @Autowired
-    CustomersRepository customersRepository;
+  @Autowired
+  CustomersRepository customersRepository;
 
-    @Autowired
-    AccountsRepository accountsRepository;
+  @Autowired
+  AccountsRepository accountsRepository;
 
-    Customer testCustomer;
+  Customer testCustomer;
 
-    @BeforeEach
-    void setUp() {
-        // create a test account
-        testCustomer = createTestCustomerAndAccount();
-    }
+  @BeforeEach
+  void setUp() {
+    // create a test account
+    testCustomer = createTestCustomerAndAccount();
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testDeleteByCustomerId() {
+  @Transactional
+  @Rollback
+  @Test
+  void testDeleteByCustomerId() {
 
-        // delete the just created customer
-        accountsRepository.deleteByCustomerId(testCustomer.getId());
+    // delete the just created customer
+    accountsRepository.deleteByCustomerId(testCustomer.getId());
 
-        // check that account doesn' exist anymore
-        assertFalse(accountsRepository.findByCustomerId(testCustomer.getId()).isPresent());
-    }
+    // check that account doesn' exist anymore
+    assertFalse(accountsRepository.findByCustomerId(testCustomer.getId()).isPresent());
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testFindByCustomerId() {
+  @Transactional
+  @Rollback
+  @Test
+  void testFindByCustomerId() {
 
-        // check that account is found
-        assertTrue(accountsRepository.findByCustomerId(testCustomer.getId()).isPresent());
-    }
+    // check that account is found
+    assertTrue(accountsRepository.findByCustomerId(testCustomer.getId()).isPresent());
+  }
 
-    @Transactional
-    @Rollback
-    @Test
-    void testFindByCustomerIdNotFound() {
+  @Transactional
+  @Rollback
+  @Test
+  void testFindByCustomerIdNotFound() {
 
-        // check that account is found
-        assertTrue(accountsRepository.findByCustomerId(1111111111L).isEmpty());
-    }
+    // check that account is found
+    assertTrue(accountsRepository.findByCustomerId(1111111111L).isEmpty());
+  }
 
-    private Customer createTestCustomerAndAccount() {
-        var testCustomer = Customer.builder()
-                .name("Test Customer")
-                .email("test.customer@test.com")
-                .mobileNumber("+49777123456789")
-                .build();
+  private Customer createTestCustomerAndAccount() {
+    var testCustomer = Customer.builder()
+        .name("Test Customer")
+        .email("test.customer@test.com")
+        .mobileNumber("+49777123456789")
+        .build();
 
-        testCustomer = customersRepository.save(testCustomer);
+    testCustomer = customersRepository.save(testCustomer);
 
-        var testAccount = Account.builder()
-                .customerId(testCustomer.getId())
-                .type(AccountsConstants.SAVINGS)
-                .branchAddress(AccountsConstants.ADDRESS)
-                .id(9999999999L)
-                .build();
+    var testAccount = Account.builder()
+        .customerId(testCustomer.getId())
+        .type(AccountsConstants.SAVINGS)
+        .branchAddress(AccountsConstants.ADDRESS)
+        .id(1999999999L)
+        .build();
 
-        testAccount = accountsRepository.save(testAccount);
+    testAccount = accountsRepository.save(testAccount);
 
-        return testCustomer;
-    }
+    return testCustomer;
+  }
 }
