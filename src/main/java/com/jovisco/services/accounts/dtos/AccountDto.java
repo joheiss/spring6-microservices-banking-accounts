@@ -8,8 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 
 @Schema(name = "Account", description = "Schema to hold account data")
-@Data
-@Builder
+@Data @Builder
 public class AccountDto {
 
   @Schema(description = "Account id", example = "1234567890")

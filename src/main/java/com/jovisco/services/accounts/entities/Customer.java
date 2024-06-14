@@ -12,12 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Getter @Setter @ToString @AllArgsConstructor @NoArgsConstructor @Builder
 @Entity
 @Table(name = "customers")
 public class Customer extends BaseEntity {

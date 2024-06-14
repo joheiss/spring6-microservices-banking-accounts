@@ -56,7 +56,6 @@ public class AccountsController {
   private String buildVersion;
 
   @Operation(summary = "Fetch a single account by the customer's mobile number", description = "Fetch data from customer and account for a given mobile number")
-
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "HTTP Status OK"),
       @ApiResponse(responseCode = "404", description = "HTTP Status NOT_FOUND", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class), examples = {

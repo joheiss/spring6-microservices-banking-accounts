@@ -9,8 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 
 @Schema(name = "Customer", description = "Schema to hold customer data")
-@Data
-@Builder
+@Data @Builder
 public class CustomerDto {
 
   @Schema(description = "Customer name", example = "John Doe")
