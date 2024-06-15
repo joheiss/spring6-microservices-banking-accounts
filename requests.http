@@ -16,6 +16,11 @@ POST {{baseUrl}}/actuator/refresh
 
 ###
 
+# SHUTDOWN app via actuator
+POST {{baseUrl}}/actuator/shutdown
+
+###
+
 # GET build version
 GET {{accountsUrl}}/version
 

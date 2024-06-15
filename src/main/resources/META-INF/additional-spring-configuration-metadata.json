@@ -8,5 +8,10 @@
     "name": "accounts",
     "type": "com.jovisco.services.accounts.dtos.AccountsContactInfoDto",
     "description": "Contact information"
+  },
+  {
+    "name": "endpoints.shutdown.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'endpoints.shutdown.enabled'"
   }
-]} 
+]}
