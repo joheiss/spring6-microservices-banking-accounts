@@ -1,5 +1,6 @@
 @baseUrl = http://localhost:8091
 @accountsUrl = {{baseUrl}}/api/v1/accounts
+@customersUrl = {{baseUrl}}/api/v1/customers
 
 # GET health
 GET {{baseUrl}}/actuator/health
@@ -79,7 +80,10 @@ DELETE {{accountsUrl}}/+49171123456789
 
 ###
 
+# Fetch customer details
+GET {{customersUrl}}/+49171123456789
 ###
+
 POST {{accountsUrl}}
 Content-Type: application/json
 
