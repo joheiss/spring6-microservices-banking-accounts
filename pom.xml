@@ -137,6 +137,15 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.5.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.graalvm.buildtools/graalvm-reachability-metadata -->
+		<dependency>
+				<groupId>org.graalvm.buildtools</groupId>
+				<artifactId>graalvm-reachability-metadata</artifactId>
+				<version>0.10.2</version>
+				<scope>runtime</scope>
+				<classifier>repository</classifier>
+				<type>zip</type>
+		</dependency>
 	</dependencies>
 
 <dependencyManagement>
@@ -156,13 +165,17 @@
 			<plugin>
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
-				<!--
 				<configuration>
+					<!--
 					<buildArgs>
 						<buildArg>-Ob</buildArg>
 					</buildArgs>
+					-->
+					<metadataRepository>
+						<enabled>true</enabled>
+						<version>0.3.8</version>
+					</metadataRepository>
 				</configuration>
-				-->
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

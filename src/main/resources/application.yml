@@ -32,7 +32,9 @@ spring:
         port: 5672
         username: guest
         password: guest
-
+    cloud:
+        refresh:
+            enabled: false
 eureka:
   instance:
     preferIpAddress: true

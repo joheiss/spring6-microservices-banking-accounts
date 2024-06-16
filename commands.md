@@ -69,5 +69,7 @@ docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_D
 export MAVEN_OPTS="-Xmx6000m"
 
 ### compile to native
-mvn clean -Pnative native:compile
+mvn clean -Pnative native:compile -DskipTests
 
+### run executable
+./target/accounts
