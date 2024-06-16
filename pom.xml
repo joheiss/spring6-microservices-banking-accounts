@@ -117,15 +117,15 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-            <scope>test</scope>
-        </dependency>		
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>mysql</artifactId>
+				<scope>test</scope>
+		</dependency>		
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
@@ -154,12 +154,28 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.graalvm.buildtools</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<!--
+				<configuration>
+					<buildArgs>
+						<buildArg>-Ob</buildArg>
+					</buildArgs>
+				</configuration>
+				-->
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<!--
 					<image>
 						<name>joheiss/sb3-${project.artifactId}:v2</name>
+						<builder>paketobuildpacks/builder:tiny</builder>
+						<env>
+							<path>target/accounts-0.0.1-SNAPSHOT.jar</path>
+							<BP_NATIVE_IMAGE>true<BP_NATIVE_IMAGE>
+						</env>
 					</image>
 					-->
 					<excludes>
@@ -174,7 +190,25 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>3.4.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.google.cloud.tools</groupId>
+						<artifactId>jib-native-image-extension-maven</artifactId>
+						<version>0.1.0</version>
+					</dependency>
+				</dependencies>
 				<configuration>
+					<pluginExtensions>
+						<pluginExtension>
+							<implementation>com.google.cloud.tools.jib.maven.extension.nativeimage.JibNativeImageExtension</implementation>
+							<properties>
+          		<!-- Normally you won't need to set this. Let us know if the extension
+               fails to auto-detect the binary name. 
+          			<imageName>accounts</imageName>
+							-->
+       	 			</properties>
+						</pluginExtension>
+					</pluginExtensions>
 					<to>
 						<image>joheiss/sb3-${project.artifactId}:v4</image>
 					</to>
