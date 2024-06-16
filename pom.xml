@@ -21,6 +21,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<maven-plugin-version>3.13.0</maven-plugin-version>
 		<spring-cloud.version>2023.0.2</spring-cloud.version>
 	</properties>
 	
@@ -142,7 +143,6 @@
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>graalvm-reachability-metadata</artifactId>
 				<version>0.10.2</version>
-				<scope>runtime</scope>
 				<classifier>repository</classifier>
 				<type>zip</type>
 		</dependency>
@@ -166,11 +166,11 @@
 				<groupId>org.graalvm.buildtools</groupId>
 				<artifactId>native-maven-plugin</artifactId>
 				<configuration>
-					<!--
 					<buildArgs>
-						<buildArg>-Ob</buildArg>
+						<!-- <buildArg>-Ob</buildArg> -->
+						<arg>--initialize-at-build-time=ch.qos.logback.classic.Logger</arg>
+						<arg>--initialize-at-build-time=org.springframework.boot.loader.nio.file.NestedFileSystemProvider</arg>
 					</buildArgs>
-					-->
 					<metadataRepository>
 						<enabled>true</enabled>
 						<version>0.3.8</version>
@@ -181,16 +181,58 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<!--
 					<image>
-						<name>joheiss/sb3-${project.artifactId}:v2</name>
-						<builder>paketobuildpacks/builder:tiny</builder>
-						<env>
-							<path>target/accounts-0.0.1-SNAPSHOT.jar</path>
-							<BP_NATIVE_IMAGE>true<BP_NATIVE_IMAGE>
-						</env>
+					<!--
+							<buildpacks>
+									<buildpack>gcr.io/paketo-buildpacks/graalvm</buildpack>
+									<buildpack>gcr.io/paketo-buildpacks/java-native-image</buildpack>
+							</buildpacks>
+						-->
+							<name>joheiss/sb3-${project.artifactId}:native</name>
+							<!-- <builder>paketobuildpacks/builder:full</builder> -->
+							<!-- <builder>paketobuildpacks/builder-jammy-base:latest</builder> -->
+							<env>
+								<!-- <BP_JVM_VERSION>21.0.2</BP_JVM_VERSION> -->
+								<path>target/accounts-0.0.1-SNAPSHOT.jar</path>
+								<BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
+								<BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
+									-H:+UnlockExperimentalVMOptions
+									-H:-AddAllFileSystemProviders
+									--initialize-at-build-time=ch.qos.logback.classic.Logger
+									--initialize-at-build-time=ch.qos.logback.classic.LoggerContext
+									--initialize-at-build-time=ch.qos.logback.core.spi.AppenderAttachableImpl
+									--initialize-at-build-time=ch.qos.logback.core.BasicStatusManager
+									--initialize-at-build-time=ch.qos.logback.core.util.COWArrayList
+									--initialize-at-build-time=ch.qos.logback.classic.util.LogbackMDCAdapter
+									--initialize-at-build-time=ch.qos.logback.classic.spi.TurboFilterList
+									--initialize-at-build-time=ch.qos.logback.classic.spi.LoggerContextVO
+									--initialize-at-build-time=ch.qos.logback.classic.Level
+									--initialize-at-build-time=ch.qos.logback.core.status.InfoStatus
+									--initialize-at-build-time=ch.qos.logback.core.ConsoleAppender
+									--initialize-at-build-time=ch.qos.logback.core.spi.LogbackLock
+									--initialize-at-build-time=ch.qos.logback.core.spi.FilterAttachableImpl
+									--initialize-at-build-time=ch.qos.logback.core.joran.spi.ConsoleTarget$1
+									--initialize-at-build-time=ch.qos.logback.core.helpers.CyclicBuffer
+									--initialize-at-build-time=ch.qos.logback.core.encoder.LayoutWrappingEncoder
+									--initialize-at-build-time=ch.qos.logback.classic.util.ContextInitializer
+									--initialize-at-build-time=ch.qos.logback.core.spi.ContextAwareImpl
+									--initialize-at-build-time=ch.qos.logback.classic.util.ContextInitializer$1
+									--initialize-at-build-time=ch.qos.logback.classic.layout.TTLLLayout
+									--initialize-at-build-time=ch.qos.logback.classic.BasicConfigurator
+									--initialize-at-build-time=ch.qos.logback.core.util.CachingDateFormatter
+									--initialize-at-build-time=ch.qos.logback.core.joran.spi.ConsoleTarget
+									--initialize-at-build-time=ch.qos.logback.classic.pattern.ThrowableProxyConverter
+									--initialize-at-build-time=ch.qos.logback.core
+									--initialize-at-build-time=ch.qos.logback.core.helpers
+									--initialize-at-build-time=ch.qos.logback.core.spi
+									--initialize-at-build-time=ch.qos.logback.classic
+									--initialize-at-build-time=ch.qos.logback.classic.layout
+									--initialize-at-build-time=ch.qos.logback.classic.pattern
+									--initialize-at-build-time=ch.qos.logback.classic.util
+									--initialize-at-build-time=ch.qos.logback.classic.spi
+								</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
+							</env>
 					</image>
-					-->
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -218,12 +260,12 @@
           		<!-- Normally you won't need to set this. Let us know if the extension
                fails to auto-detect the binary name. 
           			<imageName>accounts</imageName>
-							-->
+								-->
        	 			</properties>
 						</pluginExtension>
 					</pluginExtensions>
 					<to>
-						<image>joheiss/sb3-${project.artifactId}:v4</image>
+						<image>joheiss/sb3-${project.artifactId}:native</image>
 					</to>
 				</configuration>
 			</plugin>
