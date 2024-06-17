@@ -167,6 +167,7 @@
 					<groupId>com.google.cloud.tools</groupId>
 					<artifactId>jib-maven-plugin</artifactId>
 					<version>3.4.2</version>
+					<!--
 					<dependencies>
 						<dependency>
 							<groupId>com.google.cloud.tools</groupId>
@@ -174,18 +175,18 @@
 							<version>0.1.0</version>
 						</dependency>
 					</dependencies>
+					-->
 					<configuration>
+						<!--
 						<pluginExtensions>
 							<pluginExtension>
 								<implementation>com.google.cloud.tools.jib.maven.extension.nativeimage.JibNativeImageExtension</implementation>
 								<properties>
-								<!-- Normally you won't need to set this. Let us know if the extension
-								fails to auto-detect the binary name. 
 									<imageName>accounts</imageName>
-									-->
 								</properties>
 							</pluginExtension>
 						</pluginExtensions>
+						-->
 						<to>
 							<image>joheiss/sb3-${project.artifactId}:v5</image>
 						</to>
@@ -197,6 +198,7 @@
 
 	</build>
 
+	<!--
 	<profiles>
     <profile>
         <id>native</id>
@@ -225,11 +227,11 @@
                 <plugin>
                     <groupId>org.graalvm.buildtools</groupId>
                     <artifactId>native-maven-plugin</artifactId>
-					<!-- <configuration>
-						<requiredVersion>22.3</requiredVersion>
-					</configuration> -->
+									<configuration>
+										<requiredVersion>22.3</requiredVersion>
+									</configuration>
                     <executions>
-						<execution>
+											<execution>
                             <id>add-reachability-metadata</id>
                             <goals>
                                 <goal>add-reachability-metadata</goal>
@@ -248,5 +250,5 @@
         </build>
     </profile>
 </profiles>
-
+-->
 </project>
