@@ -187,7 +187,7 @@
 							</pluginExtension>
 						</pluginExtensions>
 						<to>
-							<image>joheiss/sb3-${project.artifactId}:native</image>
+							<image>joheiss/sb3-${project.artifactId}:v5</image>
 						</to>
 					</configuration>
 				</plugin>
