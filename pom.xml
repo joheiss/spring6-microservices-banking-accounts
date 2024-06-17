@@ -150,7 +150,8 @@
 						<image>
 								<name>joheiss/sb3-${project.artifactId}:native</name>
 								<env>
-									<!-- <BP_JVM_VERSION>21.0.2</BP_JVM_VERSION> -->
+									<BP_JVM_VERSION>21.0.3</BP_JVM_VERSION>
+									<BP_JVM_TYPE>JRE</BP_JVM_TYPE>
 									<path>target/accounts-0.0.1-SNAPSHOT.jar</path>
 								</env>
 						</image>
@@ -201,7 +202,7 @@
         <id>native</id>
         <build>
             <plugins>
-							<plugin>
+				<plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
@@ -224,11 +225,11 @@
                 <plugin>
                     <groupId>org.graalvm.buildtools</groupId>
                     <artifactId>native-maven-plugin</artifactId>
-										<configuration>
-											<requiredVersion>22.3</requiredVersion>
-										</configuration>
+					<!-- <configuration>
+						<requiredVersion>22.3</requiredVersion>
+					</configuration> -->
                     <executions>
-											<execution>
+						<execution>
                             <id>add-reachability-metadata</id>
                             <goals>
                                 <goal>add-reachability-metadata</goal>
