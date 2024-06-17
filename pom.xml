@@ -21,6 +21,7 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<maven-plugin-version>3.13.0</maven-plugin-version>
 		<spring-cloud.version>2023.0.2</spring-cloud.version>
 	</properties>
 	
@@ -71,18 +72,6 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-			<!--
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.netflix.servo</groupId>
-					<artifactId>gservo-core</artifactId>
-				</exclusion>
-			</exclusions>
-			-->
 		</dependency>		
 		<dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -92,18 +81,6 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-bus-amqp</artifactId>
-			<!--
-			<exclusions>
-				<exclusion>
-					<groupId>org.jetbrains</groupId>
-					<artifactId>annotations</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.appache.httpcomponents</groupId>
-					<artifactId>httpclient</artifactId>
-				</exclusion>
-        	</exclusions>
-			-->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -117,15 +94,15 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-            <scope>test</scope>
-        </dependency>		
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>mysql</artifactId>
+				<scope>test</scope>
+		</dependency>		
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
@@ -152,36 +129,124 @@
   </dependencyManagement>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<!--
-					<image>
-						<name>joheiss/sb3-${project.artifactId}:v2</name>
-					</image>
-					-->
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.4.2</version>
-				<configuration>
-					<to>
-						<image>joheiss/sb3-${project.artifactId}:v4</image>
-					</to>
-				</configuration>
-			</plugin>
+		<pluginManagement>
+			
+			<plugins>
+				<plugin>
+					<groupId>org.graalvm.buildtools</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<version>${native-build-tools-plugin.version}</version>
+					<configuration>
+						<skipNativeTests>true</skipNativeTests>
+						<buildArgs>
+							<buildArg>-Ob</buildArg>
+						</buildArgs>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<configuration>
+						<image>
+								<name>joheiss/sb3-${project.artifactId}:native</name>
+								<env>
+									<BP_JVM_VERSION>21.0.3</BP_JVM_VERSION>
+									<BP_JVM_TYPE>JRE</BP_JVM_TYPE>
+									<path>target/accounts-0.0.1-SNAPSHOT.jar</path>
+								</env>
+						</image>
+						<excludes>
+							<exclude>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+							</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.google.cloud.tools</groupId>
+					<artifactId>jib-maven-plugin</artifactId>
+					<version>3.4.2</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.google.cloud.tools</groupId>
+							<artifactId>jib-native-image-extension-maven</artifactId>
+							<version>0.1.0</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<pluginExtensions>
+							<pluginExtension>
+								<implementation>com.google.cloud.tools.jib.maven.extension.nativeimage.JibNativeImageExtension</implementation>
+								<properties>
+								<!-- Normally you won't need to set this. Let us know if the extension
+								fails to auto-detect the binary name. 
+									<imageName>accounts</imageName>
+									-->
+								</properties>
+							</pluginExtension>
+						</pluginExtensions>
+						<to>
+							<image>joheiss/sb3-${project.artifactId}:native</image>
+						</to>
+					</configuration>
+				</plugin>
 
-		</plugins>
+			</plugins>
+		</pluginManagement>
+
 	</build>
+
+	<profiles>
+    <profile>
+        <id>native</id>
+        <build>
+            <plugins>
+				<plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <image>
+                            <builder>paketobuildpacks/builder:tiny</builder>
+                            <env>
+                                <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
+                            </env>
+                        </image>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>process-aot</id>
+                            <goals>
+                                <goal>process-aot</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+					<!-- <configuration>
+						<requiredVersion>22.3</requiredVersion>
+					</configuration> -->
+                    <executions>
+						<execution>
+                            <id>add-reachability-metadata</id>
+                            <goals>
+                                <goal>add-reachability-metadata</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>build-native</id>
+                            <goals>
+                                <goal>compile-no-fork</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+</profiles>
 
 </project>

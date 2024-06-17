@@ -64,3 +64,16 @@ docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-ma
 
 ### start mysql container for accountsdb
 docker run -p 3306:3306 --name accountsdb -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=accountsdb -d mysql
+
+### increase memeory for GraalVM native 
+export MAVEN_OPTS="-Xmx6000m"
+
+### compile to native
+mvn clean -Pnative native:compile -DskipTests
+mvn clean compile -Pnative jib:build -DskipTests -Dimage=sb3-accounts:native -Djib.container.environment=SPRING_PROFILES_ACTIVE=prod
+### run executable
+./target/accounts
+
+### create native image - via buildpacks
+mvn clean -Pnative native:compile -DskipTests
+mvn spring-boot:build-image -DskipTests
