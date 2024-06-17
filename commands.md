@@ -73,3 +73,7 @@ mvn clean -Pnative native:compile -DskipTests
 mvn clean compile -Pnative jib:build -DskipTests -Dimage=sb3-accounts:native -Djib.container.environment=SPRING_PROFILES_ACTIVE=prod
 ### run executable
 ./target/accounts
+
+### create native image - via buildpacks
+mvn clean -Pnative native:compile -DskipTests
+mvn spring-boot:build-image -DskipTests
