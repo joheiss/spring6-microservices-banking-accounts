@@ -72,4 +72,4 @@ logging:
         com:
             jovisco:
                 services:
-                    accounts: debug
+                    accounts: TRACE

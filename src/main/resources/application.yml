@@ -74,6 +74,4 @@ endpoints:
 logging:
     level:
         com:
-            jovisco:
-                services:
-                    accounts: debug
+            jovisco: debug

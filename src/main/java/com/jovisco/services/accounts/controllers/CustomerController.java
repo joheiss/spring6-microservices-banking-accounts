@@ -51,6 +51,11 @@ public class CustomerController {
     @PathVariable String mobileNumber
   ) {
 
+    log.info("Log level INFO message");
+    log.error("Log level ERROR message");
+    log.warn("Log level WARN message");
+    log.debug("Log level DEBUG message");
+    
     log.debug("jovisco-banking-correlation-id received: {}", correlationId);
 
     var found = customersService.fetchDetails(mobileNumber, correlationId);
