@@ -22,7 +22,7 @@ public class CustomersServiceImpl implements CustomersService {
   private final CardsFeignClient cardsFeignClient;
 
   @Override
-  public CustomerDetailsDto fetchDetails(String mobileNumber) {
+  public CustomerDetailsDto fetchDetails(String mobileNumber, String correlationId) {
 
     // fetch customer data
     var foundCustomer = customersRepository
@@ -39,11 +39,11 @@ public class CustomersServiceImpl implements CustomersService {
     var detailsDto = CustomerDetailsMapper.mapToCustomerDetailsDto(foundCustomer, foundAccount);
 
     // fetch loans data - via feign client
-    var loanDto = loansFeignClient.fetchLoan(mobileNumber).getBody();
+    var loanDto = loansFeignClient.fetchLoan(correlationId, mobileNumber).getBody();
     detailsDto.setLoan(loanDto);
 
     // fetch loans data - via feign client
-    var cardDto = cardsFeignClient.fetchCard(mobileNumber).getBody();
+    var cardDto = cardsFeignClient.fetchCard(correlationId, mobileNumber).getBody();
     detailsDto.setCard(cardDto);
 
     return detailsDto;

@@ -4,5 +4,5 @@ import com.jovisco.services.accounts.dtos.CustomerDetailsDto;
 
 public interface CustomersService {
 
-  CustomerDetailsDto fetchDetails(String mobileNumber);
+  CustomerDetailsDto fetchDetails(String mobileNumber, String correlationId);
 }
