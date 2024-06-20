@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.jovisco.services.accounts.dtos.LoanDto;
 
-@FeignClient("loans")
+@FeignClient(name = "loans", fallback = LoansFallback.class)
 public interface LoansFeignClient {
 
   @GetMapping("/api/v1/loans/{mobileNumber}")
   ResponseEntity<LoanDto> fetchLoan(
-    @RequestHeader("jovisco-banking-correlation-id") String correlationId,
-    @PathVariable String mobileNumber);
+      @RequestHeader("jovisco-banking-correlation-id") String correlationId,
+      @PathVariable String mobileNumber);
 }

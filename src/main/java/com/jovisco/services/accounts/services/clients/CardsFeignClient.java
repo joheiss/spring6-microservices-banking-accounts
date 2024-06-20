@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.jovisco.services.accounts.dtos.CardDto;
 
-@FeignClient("cards")
+@FeignClient(name = "cards", fallback = CardsFallback.class)
 public interface CardsFeignClient {
 
   @GetMapping("/api/v1/cards/{mobileNumber}")
   ResponseEntity<CardDto> fetchCard(
-    @RequestHeader("jovisco-banking-correlation-id") String correlationId,
-    @PathVariable String mobileNumber);
+      @RequestHeader("jovisco-banking-correlation-id") String correlationId,
+      @PathVariable String mobileNumber);
 }

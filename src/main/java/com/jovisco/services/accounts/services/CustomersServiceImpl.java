@@ -39,14 +39,17 @@ public class CustomersServiceImpl implements CustomersService {
     var detailsDto = CustomerDetailsMapper.mapToCustomerDetailsDto(foundCustomer, foundAccount);
 
     // fetch loans data - via feign client
-    var loanDto = loansFeignClient.fetchLoan(correlationId, mobileNumber).getBody();
-    detailsDto.setLoan(loanDto);
+    var loanResponse = loansFeignClient.fetchLoan(correlationId, mobileNumber);
+    if (null != loanResponse) {
+      detailsDto.setLoan(loanResponse.getBody());
+    }
 
-    // fetch loans data - via feign client
-    var cardDto = cardsFeignClient.fetchCard(correlationId, mobileNumber).getBody();
-    detailsDto.setCard(cardDto);
+    // fetch cards data - via feign client
+    var cardResponse = cardsFeignClient.fetchCard(correlationId, mobileNumber);
+    if (null != cardResponse) {
+      detailsDto.setCard(cardResponse.getBody());
+    }
 
     return detailsDto;
   }
-
 }

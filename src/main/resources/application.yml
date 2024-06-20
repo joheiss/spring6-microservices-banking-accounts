@@ -35,6 +35,10 @@ spring:
     cloud:
         refresh:
             enabled: false
+        openfeign:
+            circuitbreaker:
+                enabled: true
+
 eureka:
   instance:
     preferIpAddress: true
@@ -70,6 +74,15 @@ management:
 endpoints:
     shutdown:
         enabled: true
+
+resilience4j:
+    circuitbreaker:
+        configs:
+            default:
+                slidingWindowSize: 10
+                permittedNumberOfCallsInHalfOpenState: 2
+                failureRateThreshold: 50
+                waitDurationInOpenState: 10000
 
 logging:
     level:
