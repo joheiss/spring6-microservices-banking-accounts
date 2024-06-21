@@ -1,43 +1,43 @@
 server:
-    port: 8091
+  port: 8091
 
 spring:
-    application:
-        name: accounts
-    profiles:
-        active: prod
-    datasource:
-        url: jdbc:mysql://localhost:3306/accountsdb
-        username: root
-        password: root
-    #     url: jdbc:h2:mem:testdb
-    #     driverClassName: org.h2.Driver
-    #     username: sa
-    #     password: ''
-    # h2:
-    #     console:
-    #         enabled: true
-    jpa:
-        # database-platform: org.hibernate.dialect.H2Dialect
-        # hibernate:
-        #     ddl-auto: update
-        show-sql: true
-    sql:
-        init:
-            mode: always
-    config:
-        import: "optional:configserver:http://localhost:8071/"
-    rabbitmq:
-        host: localhost
-        port: 5672
-        username: guest
-        password: guest
-    cloud:
-        refresh:
-            enabled: false
-        openfeign:
-            circuitbreaker:
-                enabled: true
+  application:
+    name: accounts
+  profiles:
+    active: prod
+  datasource:
+    url: jdbc:mysql://localhost:3306/accountsdb
+    username: root
+    password: root
+  #     url: jdbc:h2:mem:testdb
+  #     driverClassName: org.h2.Driver
+  #     username: sa
+  #     password: ''
+  # h2:
+  #     console:
+  #         enabled: true
+  jpa:
+    # database-platform: org.hibernate.dialect.H2Dialect
+    # hibernate:
+    #     ddl-auto: update
+    show-sql: true
+  sql:
+    init:
+      mode: always
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  cloud:
+    refresh:
+      enabled: false
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
 eureka:
   instance:
@@ -49,53 +49,60 @@ eureka:
       defaultZone: http://localhost:8070/eureka/
 
 info:
-    app:
-        name: accounts
-        description: "Spring Boot 3 - Microservices: Accounts Application"
-        version: "1.0.0"
+  app:
+    name: accounts
+    description: "Spring Boot 3 - Microservices: Accounts Application"
+    version: "1.0.0"
 
 management:
-    endpoints:
-        web:
-            exposure:
-                include: "*"
-                # include: "refresh"
-                # include: "bus-refresh"
-    endpoint:
-        health:
-            probes:
-                enabled: true
-        shutdown:
-            enabled: true
-    info:
-        env:
-            enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        # include: "refresh"
+        # include: "bus-refresh"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
 
 endpoints:
-    shutdown:
-        enabled: true
+  shutdown:
+    enabled: true
 
 resilience4j:
-    circuitbreaker:
-        configs:
-            default:
-                slidingWindowSize: 10
-                permittedNumberOfCallsInHalfOpenState: 2
-                failureRateThreshold: 50
-                waitDurationInOpenState: 10000
-    retry:
-        configs:
-            default:
-                maxAttempts: 3
-                waitDuration: 100
-                enableExponentialBackoff: true
-                exponentialBackoffMultiplier: 2
-                ignoreExceptions:
-                    - java.lang.NullPointerException
-                retryExceptions:
-                    - java.util.concurrent.TimeoutException
-                
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 100
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        ignoreExceptions:
+          - java.lang.NullPointerException
+        retryExceptions:
+          - java.util.concurrent.TimeoutException
+
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000
+        limitRefreshPeriod: 5000
+        limitForPeriod: 1
+
 logging:
-    level:
-        com:
-            jovisco: debug
+  level:
+    com:
+      jovisco: debug
