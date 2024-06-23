@@ -47,18 +47,14 @@ public class CustomerController {
   })
   @GetMapping("/customers/{mobileNumber}")
   public ResponseEntity<CustomerDetailsDto> fetchCustomerDetails(
-    @RequestHeader("jovisco-banking-correlation-id") String correlationId,
-    @PathVariable String mobileNumber
-  ) {
+      @RequestHeader("jovisco-banking-correlation-id") String correlationId,
+      @PathVariable String mobileNumber) {
 
-    log.info("Log level INFO message");
-    log.error("Log level ERROR message");
-    log.warn("Log level WARN message");
-    log.debug("Log level DEBUG message");
-    
-    log.debug("jovisco-banking-correlation-id received: {}", correlationId);
+    log.debug("fetchCustomerDetails started");
 
     var found = customersService.fetchDetails(mobileNumber, correlationId);
+
+    log.debug("fetchCustomerDetails finished");
 
     return ResponseEntity
         .status(HttpStatus.OK)
