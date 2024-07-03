@@ -32,12 +32,17 @@ spring:
     port: 5672
     username: guest
     password: guest
+    connection-timeout: 10s
   cloud:
     refresh:
       enabled: false
     openfeign:
       circuitbreaker:
         enabled: true
+    stream:
+      bindings:
+        sendCommunication-out-0:
+          destination: send-communication
 
 eureka:
   instance:

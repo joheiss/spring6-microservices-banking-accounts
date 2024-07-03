@@ -2,9 +2,11 @@ package com.jovisco.services.accounts.services;
 
 import java.util.Random;
 
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import com.jovisco.services.accounts.constants.AccountsConstants;
+import com.jovisco.services.accounts.dtos.AccountsMsgDto;
 import com.jovisco.services.accounts.dtos.CustomerDto;
 import com.jovisco.services.accounts.dtos.CustomerWithAccountDto;
 import com.jovisco.services.accounts.entities.Account;
@@ -17,13 +19,16 @@ import com.jovisco.services.accounts.repositories.AccountsRepository;
 import com.jovisco.services.accounts.repositories.CustomersRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AccountsServiceImpl implements AccountsService {
 
   private final AccountsRepository accountsRepository;
   private final CustomersRepository customersRepository;
+  private final StreamBridge streamBridge;
 
   @Override
   public void createAccount(CustomerDto customerDto) {
@@ -41,7 +46,21 @@ public class AccountsServiceImpl implements AccountsService {
     var savedCustomer = customersRepository.save(customer);
 
     var account = buildNewAccount(savedCustomer);
-    accountsRepository.save(account);
+    var savedAccount = accountsRepository.save(account);
+
+    sendCommunication(savedAccount, savedCustomer);
+  }
+
+  private void sendCommunication(Account account, Customer customer) {
+
+    var accountsMsgDto = new AccountsMsgDto(
+        account.getId(),
+        customer.getName(),
+        customer.getEmail(),
+        customer.getMobileNumber());
+    log.info("Sending communication request for details: {}", accountsMsgDto);
+    var result = streamBridge.send("sendCommunication-out-0", accountsMsgDto);
+    log.info("Was processing of communication request sucessful?: {}", result);
   }
 
   /**
