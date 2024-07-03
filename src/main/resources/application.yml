@@ -40,7 +40,7 @@ spring:
       circuitbreaker:
         enabled: true
     function:
-      definition: updateComminication
+      definition: updateCommunication
     stream:
       bindings:
         updateCommunication-in-0:
