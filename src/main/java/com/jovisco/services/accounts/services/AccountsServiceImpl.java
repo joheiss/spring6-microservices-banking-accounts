@@ -154,4 +154,22 @@ public class AccountsServiceImpl implements AccountsService {
     return true;
   }
 
+  @Override
+  public boolean updateCommunicationStatus(Long accountNumber) {
+
+    var isUpdated = false;
+
+    if (accountNumber == null) return isUpdated;
+
+    var account = accountsRepository
+        .findById(accountNumber)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Account", "Id", accountNumber.toString()));
+    account.setCommunicationStatus(true);
+    accountsRepository.save(account);
+    isUpdated = true;
+
+    return isUpdated;
+  }
+
 }

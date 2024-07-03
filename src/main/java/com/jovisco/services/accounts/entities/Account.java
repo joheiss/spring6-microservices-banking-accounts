@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "accounts")
 public class Account extends BaseEntity {
@@ -23,4 +28,6 @@ public class Account extends BaseEntity {
   private String type;
 
   private String branchAddress;
+
+  private Boolean communicationStatus;
 }

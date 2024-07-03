@@ -27,6 +27,13 @@ public interface AccountsService {
 
     /**
      * 
+     * @param accountNumber
+     * @return
+     */
+    boolean updateCommunicationStatus(Long accountNumber);
+
+    /**
+     * 
      * @param mobileNumber
      * @return boolean indicating if delete was successful
      */
