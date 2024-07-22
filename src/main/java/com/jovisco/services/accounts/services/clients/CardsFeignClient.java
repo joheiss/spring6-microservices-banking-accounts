@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.jovisco.services.accounts.dtos.CardDto;
 
-@FeignClient(name = "cards", fallback = CardsFallback.class)
+@FeignClient(name = "cards", url = "http://cards:8093", fallback = CardsFallback.class)
 public interface CardsFeignClient {
 
   @GetMapping("/api/v1/cards/{mobileNumber}")
